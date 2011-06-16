@@ -163,6 +163,7 @@ function prepareLessChrome(window) {
   let inPassword = false;
   let popupOpen = false;
   let skipClick = false;
+  let leftClicked = false;
 
   // Show the chrome immediately
   function show() {
@@ -195,6 +196,9 @@ function prepareLessChrome(window) {
     // Stop any previous animations before starting another
     cancelShifter();
     hidden = true;
+
+    // Stop deactivating the hide on move
+    leftClicked = false;
 
     // Figure out how tall various pieces are
     let total = gNavToolbox.scrollHeight;
@@ -235,7 +239,7 @@ function prepareLessChrome(window) {
 
   // Clicking the page content dismisses the chrome
   listen(window, gBrowser, "click", function({button}) {
-    if (button != 0)
+    if( button != 0 )
       return;
 
     hide();
@@ -262,8 +266,11 @@ function prepareLessChrome(window) {
     if (button != 2)
       return;
 
-    // Show on a delay to detect if it was a quick click
-    delayShow(300);
+    // Deactivate the hidding when moving.
+    leftClicked = true;
+
+    // Show immediately
+    delayShow(0);	
   });
 
   // Moving the mouse down into content can hide the chrome
@@ -280,24 +287,12 @@ function prepareLessChrome(window) {
       ignoreMouse = false;
 
     // Don't bother hiding if it shouldn't hide now
-    if (hidden || inChrome || inPassword || popupOpen)
+    if (hidden || inChrome || inPassword || popupOpen || leftClicked)
       return;
 
     // Only hide if the mouse moves far down enough
     if (clientY > gNavToolbox.boxObject.height + 30)
       delayHide(300);
-  });
-
-  // Hide the chrome on releasing a right-click
-  listen(window, gBrowser, "mouseup", function({button}) {
-    if (button != 2)
-      return;
-
-    // Prevent the delayed showing from happening now that the click finished
-    cancelShow();
-
-    // Always hide on a finished right-click
-    hide();
   });
 
   // Show some context when switching tabs
@@ -405,8 +400,11 @@ function prepareLessChrome(window) {
   });
 
   // Remember when the popup hides to allow events to resume
-  listen(window, window, "popuphiding", function() {
+  listen(window, window, "popuphiding", function({target}) {
     popupOpen = false;
+    if( target.id.search(/(contentAreaContextMenu)$/i) == 0 ){
+    	hide();
+    }
   });
 
   // Show chrome for various popups like popup notifications

@@ -163,7 +163,7 @@ function prepareLessChrome(window) {
   let inPassword = false;
   let popupOpen = false;
   let skipClick = false;
-  let leftClicked = false;
+  let rightClicked = false;
 
   // Show the chrome immediately
   function show() {
@@ -198,7 +198,7 @@ function prepareLessChrome(window) {
     hidden = true;
 
     // Stop deactivating the hide on move
-    leftClicked = false;
+    rightClicked = false;
 
     // Figure out how tall various pieces are
     let total = gNavToolbox.scrollHeight;
@@ -267,7 +267,7 @@ function prepareLessChrome(window) {
       return;
 
     // Deactivate the hidding when moving.
-    leftClicked = true;
+    rightClicked = true;
 
     // Show immediately
     delayShow(0);	
@@ -287,7 +287,7 @@ function prepareLessChrome(window) {
       ignoreMouse = false;
 
     // Don't bother hiding if it shouldn't hide now
-    if (hidden || inChrome || inPassword || popupOpen || leftClicked)
+    if (hidden || inChrome || inPassword || popupOpen || rightClicked)
       return;
 
     // Only hide if the mouse moves far down enough
